@@ -7,6 +7,7 @@ const BASE_STYLE = `
     --base:#05080A; --panel:rgba(11,22,17,.82); --panel2:rgba(16,30,23,.92); --line:#1E3B2C;
     --edge:#39FF88; --edge2:#7CFFC4; --edge-dim:#0F5A34; --online:#39FF88; --warn:#FFD166; --danger:#FF3B5C;
     --ink:#E8FFF1; --ink-dim:#5F9C7C;
+    --glow1:rgba(57,255,136,.16); --glow2:rgba(124,255,196,.10); --glow3:rgba(255,209,102,.08);
     --ease:cubic-bezier(.4,0,.2,1);
   }
   *{box-sizing:border-box}
@@ -33,6 +34,12 @@ const BASE_STYLE = `
     content:'';position:fixed;inset:0;z-index:1999;pointer-events:none;
     box-shadow:inset 0 0 14vw 3vw rgba(0,0,0,.75);
   }
+  .bg-orb{position:fixed;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:0;opacity:.75}
+  .bg-orb.o1{width:420px;height:420px;top:-140px;right:-100px;background:radial-gradient(circle,var(--glow1),transparent 70%);animation:orbFloat 14s ease-in-out infinite}
+  .bg-orb.o2{width:360px;height:360px;bottom:-120px;left:-80px;background:radial-gradient(circle,var(--glow2),transparent 70%);animation:orbFloat 18s ease-in-out infinite reverse}
+  .bg-orb.o3{width:260px;height:260px;top:40%;left:50%;background:radial-gradient(circle,var(--glow3),transparent 70%);animation:orbFloat 22s ease-in-out infinite}
+  @keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(24px,-18px) scale(1.08)}66%{transform:translate(-18px,20px) scale(.95)}}
+  @media (prefers-reduced-motion: reduce){ .bg-orb{animation:none} }
   ::selection{background:rgba(57,255,136,.35);color:#02110A}
   .mono{font-family:'JetBrains Mono',monospace}
   .display{font-family:'Sora',sans-serif}
@@ -64,31 +71,48 @@ const BASE_STYLE = `
     box-shadow:0 0 0 1px rgba(57,255,136,.35), 0 4px 18px -4px rgba(57,255,136,.55);
     text-transform:uppercase;
   }
+  .btn-primary::before{content:'';position:absolute;top:0;bottom:0;left:-60%;width:40%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);
+    transition:left .55s var(--ease)}
+  .btn-primary:hover::before{left:130%}
   .btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 0 0 1px rgba(57,255,136,.5), 0 8px 24px -6px rgba(57,255,136,.7)}
   .btn-primary:active{transform:translateY(0)}
   .btn-primary:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none}
-  .btn-ghost{background:rgba(57,255,136,.05);border:1px solid var(--line);color:var(--ink-dim);border-radius:6px;padding:7px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;transition:all .15s var(--ease)}
-  .btn-ghost:hover{color:var(--edge);border-color:var(--edge);background:rgba(57,255,136,.1);box-shadow:0 0 12px rgba(57,255,136,.15)}
+  .btn-ghost{position:relative;overflow:hidden;background:rgba(57,255,136,.05);border:1px solid var(--line);color:var(--ink-dim);border-radius:6px;padding:7px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;transition:all .15s var(--ease)}
+  .btn-ghost:hover{color:var(--edge);border-color:var(--edge);background:rgba(57,255,136,.1);box-shadow:0 0 12px rgba(57,255,136,.15);transform:translateY(-1px)}
+  .btn-ghost:active{transform:translateY(0)}
   .btn-ghost.danger:hover{color:var(--danger);border-color:var(--danger);background:rgba(255,59,92,.1);box-shadow:0 0 12px rgba(255,59,92,.18)}
   .btn-ghost.online-btn:hover{color:var(--online);border-color:var(--online);background:rgba(57,255,136,.1)}
   .card{
     background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:10px;
     box-shadow:0 1px 0 rgba(57,255,136,.04) inset, 0 10px 34px -18px rgba(0,0,0,.8), 0 0 0 1px rgba(57,255,136,.03);
     backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);position:relative;
+    transition:border-color .2s var(--ease), box-shadow .25s var(--ease), transform .2s var(--ease);
   }
+  .card::before{content:'';position:absolute;inset:-1px;border-radius:11px;padding:1px;z-index:-1;opacity:0;
+    background:conic-gradient(from var(--ang,0deg),var(--edge),transparent 25%,transparent 75%,var(--edge2));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    transition:opacity .3s var(--ease);animation:spinAng 6s linear infinite}
+  .card:hover::before{opacity:.55}
+  @keyframes spinAng{to{--ang:360deg}}
+  @property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
   table{width:100%;border-collapse:collapse;font-size:12.5px;font-family:'JetBrains Mono',monospace}
   th{text-align:right;color:var(--ink-dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;padding:10px 8px;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace}
   td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
-  tbody tr{transition:background .12s var(--ease)}
-  tbody tr:hover{background:rgba(57,255,136,.045)}
-  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace}
-  .tab{padding:10px 16px;font-size:12.5px;color:var(--ink-dim);border-bottom:2px solid transparent;cursor:pointer;transition:color .15s var(--ease), border-color .15s var(--ease);text-transform:uppercase;letter-spacing:.04em}
+  tbody tr{transition:background .15s var(--ease), box-shadow .15s var(--ease)}
+  tbody tr:nth-child(even){background:rgba(57,255,136,.015)}
+  tbody tr:hover{background:rgba(57,255,136,.06);box-shadow:inset 3px 0 0 var(--edge)}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;position:relative}
+  .tab{padding:10px 16px;font-size:12.5px;color:var(--ink-dim);border-bottom:2px solid transparent;cursor:pointer;transition:color .15s var(--ease), border-color .15s var(--ease), background .15s var(--ease);text-transform:uppercase;letter-spacing:.04em;border-radius:6px 6px 0 0}
   .tab::before{content:'> ';opacity:0;transition:opacity .15s var(--ease)}
-  .tab:hover{color:var(--ink)}
-  .tab.active{color:var(--edge);border-bottom-color:var(--edge);text-shadow:0 0 10px rgba(57,255,136,.5)}
+  .tab:hover{color:var(--ink);background:rgba(57,255,136,.05)}
+  .tab.active{color:var(--edge);border-bottom-color:var(--edge);text-shadow:0 0 10px rgba(57,255,136,.5);background:rgba(57,255,136,.08)}
   .tab.active::before{opacity:1}
-  .pill{display:inline-block;padding:2px 9px;border-radius:4px;font-size:10.5px;font-family:'JetBrains Mono',monospace;border:1px solid transparent;letter-spacing:.04em;text-transform:uppercase}
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:4px;font-size:10.5px;font-family:'JetBrains Mono',monospace;border:1px solid transparent;letter-spacing:.04em;text-transform:uppercase}
+  .pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor}
   .pill.on{background:rgba(57,255,136,.12);color:var(--online);border-color:rgba(57,255,136,.3);box-shadow:0 0 8px rgba(57,255,136,.2)}
+  .pill.on::before{animation:blipPulse 1.8s ease-in-out infinite}
   .pill.off{background:rgba(255,59,92,.12);color:var(--danger);border-color:rgba(255,59,92,.3)}
   .modal-bg{
     position:fixed;inset:0;background:rgba(2,6,4,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
@@ -98,15 +122,22 @@ const BASE_STYLE = `
   .modal-bg .card{animation:pop .18s var(--ease)}
   .stat{
     background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:10px;padding:16px 16px 16px 18px;
-    position:relative;overflow:hidden;transition:transform .15s var(--ease), border-color .15s var(--ease);
+    position:relative;overflow:hidden;transition:transform .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
     font-family:'JetBrains Mono',monospace;
   }
   .stat::before{content:'';position:absolute;top:0;bottom:0;right:0;width:3px;background:linear-gradient(180deg,var(--edge2),var(--edge));box-shadow:0 0 10px rgba(57,255,136,.5)}
-  .stat:hover{transform:translateY(-2px);border-color:var(--edge-dim);box-shadow:0 8px 24px -12px rgba(57,255,136,.35)}
+  .stat::after{content:'';position:absolute;top:-40%;left:-20%;width:60%;height:180%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.06),transparent);transform:rotate(8deg);pointer-events:none}
+  .stat:hover{transform:translateY(-3px) scale(1.01);border-color:var(--edge-dim);box-shadow:0 12px 30px -14px rgba(57,255,136,.45)}
+  .stat .stat-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;
+    background:rgba(57,255,136,.1);border:1px solid rgba(57,255,136,.25);color:var(--edge);box-shadow:0 0 10px rgba(57,255,136,.15)}
+  .stat .stat-icon svg{width:16px;height:16px}
   .stat .num{font-family:'Sora',sans-serif;font-weight:800;font-size:26px;text-shadow:0 0 16px rgba(57,255,136,.25)}
   .stat .lbl{color:var(--ink-dim);font-size:11px;margin-top:4px;text-transform:uppercase;letter-spacing:.06em}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   @keyframes pop{from{opacity:0;transform:scale(.97) translateY(4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  #reqUsageBar{position:relative;overflow:hidden;box-shadow:0 0 12px rgba(57,255,136,.5)}
+  #reqUsageBar::after{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.22) 0 10px,transparent 10px 20px);background-size:28px 28px;animation:barStripe 1.4s linear infinite}
+  @keyframes barStripe{from{background-position:0 0}to{background-position:28px 0}}
   ::-webkit-scrollbar{width:8px;height:8px}
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
@@ -477,6 +508,9 @@ export function dashboardPage() {
 ${BASE_STYLE}
 </head>
 <body>
+<div class="bg-orb o1" aria-hidden="true"></div>
+<div class="bg-orb o2" aria-hidden="true"></div>
+<div class="bg-orb o3" aria-hidden="true"></div>
 <div style="max-width:1080px;margin:0 auto;padding:24px 16px 60px;animation:fadeIn .25s var(--ease)">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
     <div class="chop-mark"><span class="dot"></span><h1>Chop</h1></div>
@@ -505,10 +539,10 @@ ${BASE_STYLE}
   </div>
 
   <div class="tabs">
-    <div class="tab active" data-tab="configs">کانفیگ‌ها</div>
-    <div class="tab" data-tab="logs">لاگ اتصال‌ها</div>
-    <div class="tab" data-tab="bot">ربات تلگرام</div>
-    <div class="tab" data-tab="backup">بکاپ و بازیابی</div>
+    <div class="tab active" data-tab="configs">⧉ کانفیگ‌ها</div>
+    <div class="tab" data-tab="logs">☰ لاگ اتصال‌ها</div>
+    <div class="tab" data-tab="bot">◈ ربات تلگرام</div>
+    <div class="tab" data-tab="backup">⇅ بکاپ و بازیابی</div>
   </div>
 
   <div id="tab-configs">
@@ -821,10 +855,10 @@ async function logout(){ await api('/api/logout', {method:'POST'}); location.hre
 async function loadStats(){
   const s = await api('/api/stats');
   document.getElementById('stats').innerHTML = \`
-    <div class="stat"><div class="num">\${s.config_count}</div><div class="lbl">کانفیگ</div></div>
-    <div class="stat"><div class="num" style="color:var(--online)">\${s.online}</div><div class="lbl">آنلاین</div></div>
-    <div class="stat"><div class="num">\${fmtBytes(s.total_used_bytes)}</div><div class="lbl">ترافیک کل</div></div>
-    <div class="stat"><div class="num mono" style="font-size:14px">\${s.backend}</div><div class="lbl">بک‌اند</div></div>
+    <div class="stat"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div><div class="num">\${s.config_count}</div><div class="lbl">کانفیگ</div></div>
+    <div class="stat"><div class="stat-icon" style="color:var(--online);border-color:rgba(57,255,136,.35)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></div><div class="num" style="color:var(--online)">\${s.online}</div><div class="lbl">آنلاین</div></div>
+    <div class="stat"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-8"/><path d="M15 8h5v5"/></svg></div><div class="num">\${fmtBytes(s.total_used_bytes)}</div><div class="lbl">ترافیک کل</div></div>
+    <div class="stat"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><circle cx="7" cy="7" r=".8" fill="currentColor"/><circle cx="7" cy="17" r=".8" fill="currentColor"/></svg></div><div class="num mono" style="font-size:14px">\${s.backend}</div><div class="lbl">بک‌اند</div></div>
   \`;
   renderRequestUsage(s);
 }
